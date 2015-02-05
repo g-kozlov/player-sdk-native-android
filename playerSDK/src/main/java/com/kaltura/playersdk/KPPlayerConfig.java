@@ -13,7 +13,8 @@ public class KPPlayerConfig {
 		KP_PLAYER_CONFIG_NATIVE_AD_ID_KEY("nativeAdId"),
 		KP_PLAYER_CONFIG_NATIVE_CALL_OUT_KEY("nativeCallout"),
 		KP_PLAYER_CONFIG_CHROMECAST_KEY("chromecast.plugin"),
-		KP_PLAYER_CONFIG_LEAD_ANDROID_HLS("Kaltura.LeadHLSOnAndroid");
+		KP_PLAYER_CONFIG_LEAD_ANDROID_HLS("Kaltura.LeadHLSOnAndroid"),
+        KP_PLAYER_CONFIG_CLOSED_CAPTIONS("closedCaptions");
 		
 		private String label;
 		

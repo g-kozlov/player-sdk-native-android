@@ -164,7 +164,7 @@ public class PlayerFragment extends Fragment {
 
                 @Override
                 public String getWid() {
-                    return "_243342";
+                    return "_1843021";
                 }
 
                 @Override
@@ -175,7 +175,7 @@ public class PlayerFragment extends Fragment {
 
                 @Override
                 public String getUiConfId() {
-                    return "21384602";
+                    return "28168501";
                 }
 
                 @Override
@@ -187,12 +187,27 @@ public class PlayerFragment extends Fragment {
                 public KPPlayerConfig getFlashVars() {
                     KPPlayerConfig playerConfig = new KPPlayerConfig();
                     playerConfig.setConfigKey(KPPlayerConfig.Key.KP_PLAYER_CONFIG_LEAD_ANDROID_HLS, "true");
+                    /*
+                    'closedCaptions': {
+				'hideWhenEmpty': true,
+				'layout': 'ontop',
+				'useCookie': true,
+				'defaultLanguageKey': 'en',
+				'fontsize': 12,
+				'bg' : '0x335544',
+				'fontFamily' : 'Arial',
+				'fontColor' : '0xFFFFFF',
+				'useGlow' : 'false',
+				'glowBlur': 4,
+				'glowColor': '0x133693'
+			}
+                     */
                     return playerConfig;
                 }
 
                 @Override
                 public String getEntryId() {
-                    return "0_c0r624gh";
+                    return "0_oly8n4ge";
                 }
 
                 @Override
