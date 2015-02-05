@@ -27,7 +27,10 @@ public class HLSPlayer extends BasePlayerView implements
         com.kaltura.hlsplayersdk.events.OnAudioTracksListListener,
         com.kaltura.hlsplayersdk.events.OnAudioTrackSwitchingListener,
         com.kaltura.hlsplayersdk.events.OnQualityTracksListListener,
-        com.kaltura.hlsplayersdk.events.OnQualitySwitchingListener
+        com.kaltura.hlsplayersdk.events.OnQualitySwitchingListener,
+        com.kaltura.hlsplayersdk.events.OnTextTrackTextListener,
+        com.kaltura.hlsplayersdk.events.OnTextTracksListListener,
+        com.kaltura.hlsplayersdk.events.OnTextTrackChangeListener
 {
 
     private static final String TAG = HLSPlayer.class.getSimpleName();
@@ -248,6 +251,9 @@ public class HLSPlayer extends BasePlayerView implements
         list.add(Listener.EventType.AUDIO_TRACKS_LIST_LISTENER_TYPE);
         list.add(Listener.EventType.QUALITY_SWITCHING_LISTENER_TYPE);
         list.add(Listener.EventType.QUALITY_TRACKS_LIST_LISTENER_TYPE);
+        list.add(Listener.EventType.TEXT_TRACK_CHANGE_LISTENER_TYPE);
+        list.add(Listener.EventType.TEXT_TRACK_LIST_LISTENER_TYPE);
+        list.add(Listener.EventType.TEXT_TRACK_TEXT_LISTENER_TYPE);
         return list;
     }
 
@@ -300,10 +306,13 @@ public class HLSPlayer extends BasePlayerView implements
                     mPlayer.registerQualityTracksList(shouldRegister ? this : null);
                 break;
             case TEXT_TRACK_CHANGE_LISTENER_TYPE:
+                    mPlayer.registerTextTrackChanged(shouldRegister ? this : null);
                 break;
             case TEXT_TRACK_LIST_LISTENER_TYPE:
+                    mPlayer.registerTextTracksList(shouldRegister ? this : null);
                 break;
             case TEXT_TRACK_TEXT_LISTENER_TYPE:
+                    mPlayer.registerTextTrackText(shouldRegister ? this : null);
                 break;
             case TOGGLE_FULLSCREEN_LISTENER_TYPE:
                 break;
@@ -339,5 +348,20 @@ public class HLSPlayer extends BasePlayerView implements
     @Override
     public void onQualitySwitchingEnd(int newTrackIndex) {
 
+    }
+
+    @Override
+    public void onSubtitleText(double startTime, double length, String buffer) {
+        mListenerExecutor.executeOnSubtitleText(startTime,length,buffer);
+    }
+
+    @Override
+    public void onOnTextTrackChanged(int newTrackIndex) {
+        mListenerExecutor.executeOnTextTrackChanged(newTrackIndex);
+    }
+
+    @Override
+    public void OnTextTracksList(List<String> list, int defaultTrackIndex) {
+        mListenerExecutor.executeOnTextTracksList(list, defaultTrackIndex);
     }
 }

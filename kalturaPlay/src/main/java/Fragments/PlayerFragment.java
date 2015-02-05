@@ -333,7 +333,7 @@ public class PlayerFragment extends Fragment {
                         }
                     });
                 }
-            }, 100 );
+            }, 100);
 
         }
     }
