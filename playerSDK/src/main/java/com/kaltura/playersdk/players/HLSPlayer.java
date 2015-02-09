@@ -360,7 +360,9 @@ public class HLSPlayer extends BasePlayerView implements
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mListenerExecutor.executeOnSubtitleText(startTime,length,buffer);
+                if(mPlayer != null && mPlayer.isPlaying()) {
+                    mListenerExecutor.executeOnSubtitleText(startTime, length, buffer);
+                }
             }
         }, (int)(startTime * 1000));
 
