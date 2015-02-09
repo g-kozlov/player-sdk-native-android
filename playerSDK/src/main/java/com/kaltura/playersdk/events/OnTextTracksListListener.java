@@ -26,6 +26,7 @@ public abstract class OnTextTracksListListener extends Listener{
 
     public static class LanguageItem{
         String src;
+        String label;
     }
 
     public static class TextTracksListInputObject extends InputObject{
@@ -37,6 +38,7 @@ public abstract class OnTextTracksListListener extends Listener{
             for (String str : languagesList){
                 LanguageItem lngItm = new LanguageItem();
                 lngItm.src = str;
+                lngItm.label = str;
                 languages.add(lngItm);
             }
         }
