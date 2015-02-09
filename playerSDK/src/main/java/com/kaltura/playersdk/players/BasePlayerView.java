@@ -242,7 +242,7 @@ public abstract class BasePlayerView extends FrameLayout {
 
         void executeOnTextTracksList( List<String> list, int defaultTrackIndex ){
             OnTextTracksListListener.TextTracksListInputObject input = new OnTextTracksListListener.TextTracksListInputObject();
-            input.list = list;
+            input.setLanguages(list);
             input.defaultTrackIndex = defaultTrackIndex;
             BasePlayerView.this.executeListener(Listener.EventType.TEXT_TRACK_LIST_LISTENER_TYPE, input);
         }

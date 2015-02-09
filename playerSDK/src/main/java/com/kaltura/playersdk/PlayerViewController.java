@@ -523,10 +523,9 @@ public class PlayerViewController extends RelativeLayout {
 
         mVideoInterface.registerListener(new OnTextTracksListListener() {
             @Override
-            public void onTextTracksList(List<String> list, int defaultTrackIndex) {
-                Notifier.notifyKPlayer("trigger",new String[]{"textTracksReceived",""},mWebView);
+            public void onTextTracksList(List<LanguageItem> list, int defaultTrackIndex) {
             }
-        });
+        }.setShouldAutoNotifyKPlayer(true,mWebView));
 
         mVideoInterface.registerListener(new OnTextTrackTextListener() {
             @Override
