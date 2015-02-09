@@ -69,7 +69,7 @@ public abstract class Listener {
         QUALITY_TRACKS_LIST_LISTENER_TYPE(""),
         TEXT_TRACK_CHANGE_LISTENER_TYPE(""),
         TEXT_TRACK_LIST_LISTENER_TYPE("textTracksReceived"),
-        TEXT_TRACK_TEXT_LISTENER_TYPE(""),
+        TEXT_TRACK_TEXT_LISTENER_TYPE("loadEmbeddedCaptions"),
         TOGGLE_FULLSCREEN_LISTENER_TYPE(""),
         WEB_VIEW_MINIMIZE_LISTENER_TYPE(""),
         KPLAYER_EVENT_LISTENER_TYPE("");

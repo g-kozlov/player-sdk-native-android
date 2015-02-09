@@ -251,7 +251,9 @@ public abstract class BasePlayerView extends FrameLayout {
             OnTextTrackTextListener.TextTrackTextInputObject input = new OnTextTrackTextListener.TextTrackTextInputObject();
             input.startTime = startTime;
             input.length = length;
-            input.buffer = buffer;
+            input.text = buffer;
+            input.language = "fra";
+            input.trackId = 0;
             BasePlayerView.this.executeListener(Listener.EventType.TEXT_TRACK_TEXT_LISTENER_TYPE, input);
         }
 

@@ -17,7 +17,7 @@ public abstract class OnTextTrackTextListener extends Listener{
     @Override
     final protected void executeInternalCallback(InputObject inputObject){
         TextTrackTextInputObject input = (TextTrackTextInputObject) inputObject;
-        onSubtitleText(input.startTime, input.length, input.buffer);
+        onSubtitleText(input.startTime, input.length, input.text);
     }
 
     final protected boolean checkValidInputObjectType(InputObject inputObject){
@@ -29,6 +29,8 @@ public abstract class OnTextTrackTextListener extends Listener{
     public static class TextTrackTextInputObject extends InputObject{
         public double startTime;
         public double length;
-        public String buffer;
+        public String text;
+        public int trackId;
+        public String language;
     }
 }

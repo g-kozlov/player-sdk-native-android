@@ -524,15 +524,16 @@ public class PlayerViewController extends RelativeLayout {
         mVideoInterface.registerListener(new OnTextTracksListListener() {
             @Override
             public void onTextTracksList(List<LanguageItem> list, int defaultTrackIndex) {
+                Log.d(TAG, "Received tracks list with size: " + list.size());
             }
         }.setShouldAutoNotifyKPlayer(true,mWebView));
 
         mVideoInterface.registerListener(new OnTextTrackTextListener() {
             @Override
             public void onSubtitleText(double startTime, double length, String buffer) {
-                Log.d(TAG, "subs: " + buffer);
+                Log.d(TAG, "Subs String: " + buffer);
             }
-        });
+        }.setShouldAutoNotifyKPlayer(true, mWebView));
     }
 
 
