@@ -180,28 +180,15 @@ public class PlayerFragment extends Fragment {
 
                 @Override
                 public String getServerAddress() {
-                    return "http://cdnbakmi.kaltura.com/html5/html5lib/v2.25.2/mwEmbedFrame.php";
+//                    return "http://cdnbakmi.kaltura.com/html5/html5lib/v2.25.2/mwEmbedFrame.php";
+                    return "http://10.0.21.71/html5.kaltura/mwEmbed/mwEmbedFrame.php";
                 }
 
                 @Override
                 public KPPlayerConfig getFlashVars() {
                     KPPlayerConfig playerConfig = new KPPlayerConfig();
                     playerConfig.setConfigKey(KPPlayerConfig.Key.KP_PLAYER_CONFIG_LEAD_ANDROID_HLS, "true");
-                    /*
-                    'closedCaptions': {
-				'hideWhenEmpty': true,
-				'layout': 'ontop',
-				'useCookie': true,
-				'defaultLanguageKey': 'en',
-				'fontsize': 12,
-				'bg' : '0x335544',
-				'fontFamily' : 'Arial',
-				'fontColor' : '0xFFFFFF',
-				'useGlow' : 'false',
-				'glowBlur': 4,
-				'glowColor': '0x133693'
-			}
-                     */
+                    playerConfig.setConfigKey(KPPlayerConfig.Key.KP_PLAYER_CONFIG_CLOSED_CAPTIONS_SHOW_EMBEDDED, "true");
                     return playerConfig;
                 }
 
@@ -333,7 +320,7 @@ public class PlayerFragment extends Fragment {
                         }
                     });
                 }
-            }, 100);
+            }, 100 );
 
         }
     }

@@ -25,5 +25,10 @@ public abstract class OnProgressUpdateListener extends Listener{
 
     public static class ProgressInputObject extends InputObject{
         public int progress;
+
+        @Override
+        public String toString() {
+            return Double.valueOf(progress / 100.0).toString();
+        }
     }
 }

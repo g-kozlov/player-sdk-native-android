@@ -11,7 +11,7 @@ public abstract class OnErrorListener extends Listener{
     @Override
     final  protected void executeInternalCallback(InputObject inputObject){
         ErrorInputObject input = (ErrorInputObject)inputObject;
-        onError(input.errorCode, input.errorMessage);
+        onError(input.errorId, input.errorMessage);
     }
 
     final protected boolean checkValidInputObjectType(InputObject inputObject){
@@ -47,7 +47,7 @@ public abstract class OnErrorListener extends Listener{
     abstract public void onError(int errorCode, String errorMessage);
 
     public static class ErrorInputObject extends InputObject{
-        public int errorCode;
+        public int errorId;
         public String errorMessage;
     }
 }

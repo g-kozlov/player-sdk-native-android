@@ -21,7 +21,6 @@ import android.webkit.WebViewClient;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.cast.CastDevice;
-import com.google.gson.Gson;
 import com.kaltura.playersdk.chromecast.ChromecastHandler;
 import com.kaltura.playersdk.events.KPlayerEventListener;
 import com.kaltura.playersdk.events.KPlayerJsCallbackReadyListener;
@@ -32,8 +31,12 @@ import com.kaltura.playersdk.events.OnErrorListener;
 import com.kaltura.playersdk.events.OnPlayerStateChangeListener;
 import com.kaltura.playersdk.events.OnPlayheadUpdateListener;
 import com.kaltura.playersdk.events.OnProgressUpdateListener;
+import com.kaltura.playersdk.events.OnTextTrackChangeListener;
+import com.kaltura.playersdk.events.OnTextTrackTextListener;
+import com.kaltura.playersdk.events.OnTextTracksListListener;
 import com.kaltura.playersdk.events.OnToggleFullScreenListener;
 import com.kaltura.playersdk.events.OnWebViewMinimizeListener;
+import com.kaltura.playersdk.notifiers.Notifier;
 import com.kaltura.playersdk.players.BasePlayerView;
 import com.kaltura.playersdk.players.CastPlayer;
 import com.kaltura.playersdk.players.HLSPlayer;
@@ -139,9 +142,9 @@ public class PlayerViewController extends RelativeLayout {
                                 @Override
                                 public void onCastDeviceChange(CastDevice oldDevice, CastDevice newDevice) {
                                     if ( ChromecastHandler.selectedDevice != null ) {
-                                        notifyKPlayer("trigger", new String[] { "chromecastDeviceConnected" });
+                                        Notifier.notifyKPlayer("trigger", new String[] { "chromecastDeviceConnected" }, mWebView);
                                     } else {
-                                        notifyKPlayer("trigger", new String[] { "chromecastDeviceDisConnected" });
+                                        Notifier.notifyKPlayer("trigger", new String[] { "chromecastDeviceDisConnected" }, mWebView);
                                     }
                                     createPlayerInstance();
                                 }
@@ -403,7 +406,7 @@ public class PlayerViewController extends RelativeLayout {
     }
 
     public void sendNotification(String noteName, JSONObject noteBody) {
-        notifyKPlayer("sendNotification",  new String[] { noteName, noteBody.toString() });
+        Notifier.notifyKPlayer("sendNotification",  new String[] { noteName, noteBody.toString() },mWebView);
     }
 
     public void addKPlayerEventListener(String eventName,
@@ -420,7 +423,7 @@ public class PlayerViewController extends RelativeLayout {
         listeners.add(listener);
         mKplayerEventsMap.put(eventName, listeners);
         if ( isNewEvent )
-            notifyKPlayer("addJsListener", new String[] { eventName });
+            Notifier.notifyKPlayer("addJsListener", new String[] { eventName },mWebView);
     }
 
     public void removeKPlayerEventListener(String eventName,String callbackName) {
@@ -433,56 +436,18 @@ public class PlayerViewController extends RelativeLayout {
                 }
             }
             if ( listeners.size() == 0 )
-                notifyKPlayer( "removeJsListener", new String[] { eventName });
+                Notifier.notifyKPlayer( "removeJsListener", new String[] { eventName },mWebView);
         }
     }
 
     public void setKDPAttribute(String hostName, String propName, Object value) {
-        notifyKPlayer("setKDPAttribute", new Object[] { hostName, propName, value });
+        Notifier.notifyKPlayer("setKDPAttribute", new Object[] { hostName, propName, value },mWebView);
     }
 
     public void asyncEvaluate(String expression, KPlayerEventListener listener) {
         String callbackName = listener.getCallbackName();
         mKplayerEvaluatedMap.put(callbackName, listener);
-        notifyKPlayer("asyncEvaluate", new String[] { expression, callbackName });
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * call js function on NativeBridge.videoPlayer
-     *
-     * @param action
-     *            function name
-     * @param eventValues
-     *            function arguments
-     */
-    private void notifyKPlayer(final String action, final Object[] eventValues) {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String values = "";
-
-                if (eventValues != null) {
-                    for ( int i=0; i< eventValues.length; i++ ) {
-                        if ( eventValues[i] instanceof String ) {
-                            values += "'" + eventValues[i] + "'";
-                        } else {
-                            values += eventValues[i].toString();
-                        }
-                        if ( i < eventValues.length - 1 ) {
-                            values += ", ";
-                        }
-                    }
-                    // values = TextUtils.join("', '", eventValues);
-                }
-                if ( mWebView != null ) {
-                    Log.d(TAG,"NotifyKplayer: " + values);
-                    mWebView.loadUrl("javascript:NativeBridge.videoPlayer."
-                            + action + "(" + values + ");");
-                }
-
-            }
-        });
+        Notifier.notifyKPlayer("asyncEvaluate", new String[] { expression, callbackName },mWebView);
     }
 
     private void removePlayerListeners() {
@@ -490,38 +455,33 @@ public class PlayerViewController extends RelativeLayout {
         mVideoInterface.removeListener(Listener.EventType.PLAYHEAD_UPDATE_LISTENER_TYPE);
         mVideoInterface.removeListener(Listener.EventType.PROGRESS_UPDATE_LISTENER_TYPE);
         mVideoInterface.removeListener(Listener.EventType.ERROR_LISTENER_TYPE);
+        mVideoInterface.removeListener(Listener.EventType.TEXT_TRACK_LIST_LISTENER_TYPE);
+        mVideoInterface.removeListener(Listener.EventType.TEXT_TRACK_CHANGE_LISTENER_TYPE);
+        mVideoInterface.removeListener(Listener.EventType.TEXT_TRACK_TEXT_LISTENER_TYPE);
     }
 
     private void setPlayerListeners() {
         // notify player state change events
         mVideoInterface.registerListener(new OnPlayerStateChangeListener() {
-                    @Override
-                    public void onStateChanged(PlayerStates state) {
-                        if ( state == PlayerStates.START ) {
-                            mDuration = getDuration();
-                            notifyKPlayer("trigger", new Object[]{ "durationchange", mDuration });
-                            notifyKPlayer("trigger", new Object[]{ "loadedmetadata" });
-                        }
-                        if ( state != mState ) {
-                            mState = state;
-
-                            if (mState != PlayerStates.LOAD) {
-                                final String eventName = state.toString();
-                                notifyKPlayer("trigger", new String[] { eventName });
-                            }
-                        }
-
-                        return;
-                    }
-                });
-
-        // trigger timeupdate events
-        final Runnable runUpdatePlayehead = new Runnable() {
             @Override
-            public void run() {
-                notifyKPlayer( "trigger", new Object[]{ "timeupdate", mCurSec});
+            public void onStateChanged(PlayerStates state) {
+                if (state == PlayerStates.START) {
+                    mDuration = getDuration();
+                    Notifier.notifyKPlayer("trigger", new Object[]{"durationchange", mDuration},mWebView);
+                    Notifier.notifyKPlayer("trigger", new Object[]{"loadedmetadata"},mWebView);
+                }
+                if (state != mState) {
+                    mState = state;
+
+                    if (mState != PlayerStates.LOAD) {
+                        final String eventName = state.toString();
+                        Notifier.notifyKPlayer("trigger", new String[]{eventName}, mWebView);
+                    }
+                }
+
+                return;
             }
-        };
+        });
 
         // listens for playhead update
         mVideoInterface.registerListener(new OnPlayheadUpdateListener() {
@@ -530,7 +490,7 @@ public class PlayerViewController extends RelativeLayout {
                 double curSec = msec / 1000.0;
                 if (curSec <= mDuration && Math.abs(mCurSec - curSec) > 0.01) {
                     mCurSec = curSec;
-                    mActivity.runOnUiThread(runUpdatePlayehead);
+                    Notifier.notifyKPlayer( "trigger", new Object[]{ "timeupdate", mCurSec}, mWebView);
                 }
                 //device is sleeping, pause player
                 if (!mPowerManager.isScreenOn()) {
@@ -543,63 +503,40 @@ public class PlayerViewController extends RelativeLayout {
         mVideoInterface.registerListener(new OnProgressUpdateListener() {
             @Override
             public void onProgressUpdate(int progress) {
-                double percent = progress / 100.0;
-                notifyKPlayer("trigger", new Object[]{"progress", percent});
 
             }
-        });
+        }.setShouldAutoNotifyKPlayer(true, mWebView));
 
         mVideoInterface.registerListener(new OnErrorListener() {
             @Override
             public void onError(int errorCode, String errorMessage) {
                 Log.d(TAG, "Error Code: " + String.valueOf(errorCode) + " : " + errorMessage);
-                if (mVideoInterface.getClass().equals(HLSPlayer.class)) {
-                    ErrorBuilder.ErrorObject error = new ErrorBuilder().setErrorId(errorCode).setErrorMessage(errorMessage).build();
-                    notifyKPlayer("trigger", new Object[]{"error", error});
-                }
+            }
+        }.setShouldAutoNotifyKPlayer(true, mWebView));
+
+        mVideoInterface.registerListener(new OnTextTrackChangeListener() {
+            @Override
+            public void onTextTrackChanged(int newTrackIndex) {
+
+            }
+        });
+
+        mVideoInterface.registerListener(new OnTextTracksListListener() {
+            @Override
+            public void onTextTracksList(List<String> list, int defaultTrackIndex) {
+                Notifier.notifyKPlayer("trigger",new String[]{"textTracksReceived",""},mWebView);
+            }
+        });
+
+        mVideoInterface.registerListener(new OnTextTrackTextListener() {
+            @Override
+            public void onSubtitleText(double startTime, double length, String buffer) {
 
             }
         });
     }
 
-    private static class ErrorBuilder {
-        String errorMessage;
-        int errorId;
 
-        public ErrorBuilder()
-        {
-
-        }
-
-        public ErrorBuilder setErrorMessage(String errorMessage){
-            this.errorMessage = errorMessage;
-            return this;
-        }
-
-
-        public ErrorBuilder setErrorId(int errorId){
-            this.errorId = errorId;
-            return this;
-        }
-
-        public ErrorObject build(){
-            return new ErrorObject(this);
-        }
-
-        public static class ErrorObject{
-            String errorMessage;
-            int errorId;
-            private ErrorObject(ErrorBuilder builder){
-                errorMessage = builder.errorMessage;
-                errorId = builder.errorId;
-            }
-
-            @Override
-            public String toString() {
-                return new Gson().toJson(this);
-            }
-        }
-    }
     private class CustomWebViewClient extends WebViewClient {
 
         @Override
@@ -766,9 +703,9 @@ public class PlayerViewController extends RelativeLayout {
                                                         public void onKPlayerEvent(
                                                                 Object body) {
                                                             if (body instanceof Object[]) {
-                                                                notifyKPlayer("trigger", (Object[]) body);
+                                                                Notifier.notifyKPlayer("trigger", (Object[]) body,mWebView);
                                                             } else {
-                                                                notifyKPlayer("trigger", new String[]{body.toString()});
+                                                                Notifier.notifyKPlayer("trigger", new String[]{body.toString()},mWebView);
                                                             }
                                                         }
 

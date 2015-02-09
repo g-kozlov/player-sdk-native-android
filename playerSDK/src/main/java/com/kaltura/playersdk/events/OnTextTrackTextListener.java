@@ -24,7 +24,7 @@ public abstract class OnTextTrackTextListener extends Listener{
         return inputObject instanceof TextTrackTextInputObject;
     }
 
-    abstract void onSubtitleText(double startTime, double length, String buffer);
+    public abstract void onSubtitleText(double startTime, double length, String buffer);
 
     public static class TextTrackTextInputObject extends InputObject{
         public double startTime;

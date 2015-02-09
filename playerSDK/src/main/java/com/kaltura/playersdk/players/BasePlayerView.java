@@ -191,7 +191,7 @@ public abstract class BasePlayerView extends FrameLayout {
         void executeOnError(int errorCode, String errorMessage){
             OnErrorListener.ErrorInputObject input = new OnErrorListener.ErrorInputObject();
             input.errorMessage = errorMessage;
-            input.errorCode = errorCode;
+            input.errorId = errorCode;
             BasePlayerView.this.executeListener(Listener.EventType.ERROR_LISTENER_TYPE, input);
         }
 
