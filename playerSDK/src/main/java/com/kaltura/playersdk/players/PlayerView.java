@@ -129,6 +129,7 @@ public class PlayerView extends BasePlayerView {
         return mVideoView.getDuration();
     }
 
+    @Override
     public int getCurrentPosition() {
         return mVideoView.getCurrentPosition();
     }

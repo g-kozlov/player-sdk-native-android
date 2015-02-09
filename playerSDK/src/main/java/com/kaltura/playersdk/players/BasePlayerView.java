@@ -80,6 +80,8 @@ public abstract class BasePlayerView extends FrameLayout {
 
     public abstract boolean canPause();
 
+    public abstract int getCurrentPosition();
+
     // events
 
     final private void initListeners(){

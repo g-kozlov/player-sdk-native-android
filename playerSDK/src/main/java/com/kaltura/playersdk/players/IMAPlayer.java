@@ -28,7 +28,6 @@ import com.google.android.libraries.mediaframework.layeredvideo.SimpleVideoPlaye
 import com.google.android.libraries.mediaframework.layeredvideo.Util;
 import com.kaltura.playersdk.events.KPlayerEventListener;
 import com.kaltura.playersdk.events.Listener;
-import com.kaltura.playersdk.events.OnPlayerStateChangeListener;
 import com.kaltura.playersdk.events.OnWebViewMinimizeListener;
 import com.kaltura.playersdk.types.PlayerStates;
 
@@ -245,7 +244,18 @@ public class IMAPlayer extends BasePlayerView {
 		return 0;
 	}
 
-	@Override
+    @Override
+    public int getCurrentPosition() {
+        if ( mIsInSequence && mAdPlayer!=null ) {
+            return mAdPlayer.getCurrentPosition();
+        } else if ( !mIsInSequence && mContentPlayer!=null ){
+            return mContentPlayer.getCurrentPosition();
+        }
+
+        return 0;
+    }
+
+    @Override
 	public void play() {
 		if ( mAdTagUrl != null ) {
             synchronized (this){

@@ -168,6 +168,11 @@ public class HLSPlayer extends BasePlayerView implements
 
     }
 
+    @Override
+    public int getCurrentPosition() {
+        return mPlayer.getCurrentPosition();
+    }
+
     /////////////////////////////////////////////////////////
     //
     //      HlsPlayerSDK Listeners
@@ -351,8 +356,14 @@ public class HLSPlayer extends BasePlayerView implements
     }
 
     @Override
-    public void onSubtitleText(double startTime, double length, String buffer) {
-        mListenerExecutor.executeOnSubtitleText(startTime,length,buffer);
+    public void onSubtitleText(final double startTime, final double length, final String buffer) {
+        this.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mListenerExecutor.executeOnSubtitleText(startTime,length,buffer);
+            }
+        }, (int)(startTime * 1000));
+
     }
 
     @Override
