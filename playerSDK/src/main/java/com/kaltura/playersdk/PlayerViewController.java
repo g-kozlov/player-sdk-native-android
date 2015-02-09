@@ -530,7 +530,7 @@ public class PlayerViewController extends RelativeLayout {
         mVideoInterface.registerListener(new OnTextTrackTextListener() {
             @Override
             public void onSubtitleText(double startTime, double length, String buffer) {
-
+                Log.d(TAG, "subs: " + buffer);
             }
         });
     }
@@ -610,7 +610,11 @@ public class PlayerViewController extends RelativeLayout {
                                             if (params.get(0).equals("currentTime")) {
                                                 int seekTo = Math.round(Float.parseFloat(params.get(1)) * 1000);
                                                 mVideoInterface.seek(seekTo);
-                                            } else if (params.get(0).equals("src")) {
+                                            } if( params.get(0).equals("textTrackSelected") ) {
+                                                if (mVideoInterface instanceof TextTracksInterface){
+                                                    ((TextTracksInterface)mVideoInterface).switchTextTrack(0);
+                                                }
+                                            }else if (params.get(0).equals("src")) {
                                                 // remove " from the edges
                                                 mVideoUrl = params.get(1);
                                                 //check for hls
