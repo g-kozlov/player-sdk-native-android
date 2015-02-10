@@ -14,7 +14,9 @@ import com.kaltura.playersdk.events.Listener;
 import com.kaltura.playersdk.types.TrackType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HLSPlayer extends BasePlayerView implements
         TextTracksInterface,
@@ -35,6 +37,7 @@ public class HLSPlayer extends BasePlayerView implements
 
     private static final String TAG = HLSPlayer.class.getSimpleName();
     private HLSPlayerViewController mPlayer;
+    private Map<String, Integer> mCaptionsMap;
 
     public HLSPlayer(Activity activity) {
         super(activity);
@@ -166,6 +169,14 @@ public class HLSPlayer extends BasePlayerView implements
     public void switchTextTrack(int newIndex) {
         mPlayer.switchTextTrack(newIndex);
 
+    }
+
+    @Override
+    public void switchTextTrack(String lang) {
+        Integer choice = mCaptionsMap.get(lang);
+        if (choice != null){
+            switchTextTrack(choice);
+        }
     }
 
     @Override
@@ -375,6 +386,10 @@ public class HLSPlayer extends BasePlayerView implements
 
     @Override
     public void OnTextTracksList(List<String> list, int defaultTrackIndex) {
+        mCaptionsMap = new HashMap<>();
+        for(int i = 0; i < list.size(); i++ ){
+            mCaptionsMap.put(list.get(i), i);
+        }
         mListenerExecutor.executeOnTextTracksList(list, defaultTrackIndex);
     }
 }

@@ -613,7 +613,8 @@ public class PlayerViewController extends RelativeLayout {
                                                 mVideoInterface.seek(seekTo);
                                             } if( params.get(0).equals("textTrackSelected") ) {
                                                 if (mVideoInterface instanceof TextTracksInterface){
-                                                    ((TextTracksInterface)mVideoInterface).switchTextTrack(0);
+                                                    JSONObject jsonPar = new JSONObject(params.get(1));
+                                                    ((TextTracksInterface)mVideoInterface).switchTextTrack(jsonPar.getString("language"));
                                                 }
                                             }else if (params.get(0).equals("src")) {
                                                 // remove " from the edges
