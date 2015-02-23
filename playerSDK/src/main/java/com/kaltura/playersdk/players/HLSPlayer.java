@@ -5,8 +5,10 @@ import android.util.Log;
 import android.view.Gravity;
 
 import com.kaltura.hlsplayersdk.HLSPlayerViewController;
+import com.kaltura.hlsplayersdk.events.OnDurationChangedListener;
 import com.kaltura.hlsplayersdk.types.PlayerStates;
 import com.kaltura.playersdk.AlternateAudioTracksInterface;
+import com.kaltura.playersdk.LiveStreamInterface;
 import com.kaltura.playersdk.QualityTrack;
 import com.kaltura.playersdk.QualityTracksInterface;
 import com.kaltura.playersdk.TextTracksInterface;
@@ -32,7 +34,9 @@ public class HLSPlayer extends BasePlayerView implements
         com.kaltura.hlsplayersdk.events.OnQualitySwitchingListener,
         com.kaltura.hlsplayersdk.events.OnTextTrackTextListener,
         com.kaltura.hlsplayersdk.events.OnTextTracksListListener,
-        com.kaltura.hlsplayersdk.events.OnTextTrackChangeListener
+        com.kaltura.hlsplayersdk.events.OnTextTrackChangeListener,
+        OnDurationChangedListener,
+        LiveStreamInterface
 {
 
     private static final String TAG = HLSPlayer.class.getSimpleName();
@@ -184,6 +188,9 @@ public class HLSPlayer extends BasePlayerView implements
         return mPlayer.getCurrentPosition();
     }
 
+    public void switchToLive() {
+        mPlayer.goToLive();
+    }
     /////////////////////////////////////////////////////////
     //
     //      HlsPlayerSDK Listeners
@@ -247,7 +254,7 @@ public class HLSPlayer extends BasePlayerView implements
             newTrack.type = currentTrack.type == com.kaltura.hlsplayersdk.types.TrackType.VIDEO ? TrackType.VIDEO: TrackType.AUDIO;
             newList.add(newTrack);
         }
-        mListenerExecutor.executeOnQualityTracksList(newList,defaultTrackIndex);
+        mListenerExecutor.executeOnQualityTracksList(newList, defaultTrackIndex);
     }
 
     @Override
@@ -270,6 +277,7 @@ public class HLSPlayer extends BasePlayerView implements
         list.add(Listener.EventType.TEXT_TRACK_CHANGE_LISTENER_TYPE);
         list.add(Listener.EventType.TEXT_TRACK_LIST_LISTENER_TYPE);
         list.add(Listener.EventType.TEXT_TRACK_TEXT_LISTENER_TYPE);
+        list.add(Listener.EventType.DURATION_CHANGED_LISTENER_TYPE);
         return list;
     }
 
@@ -337,6 +345,8 @@ public class HLSPlayer extends BasePlayerView implements
             case KPLAYER_EVENT_LISTENER_TYPE:
 
                 break;
+            case DURATION_CHANGED_LISTENER_TYPE:
+                mPlayer.registerDurationChanged(shouldRegister ? this : null);
         }
     }
 
@@ -367,7 +377,7 @@ public class HLSPlayer extends BasePlayerView implements
     }
 
     @Override
-    public void onSubtitleText(final double startTime, final double length, final String buffer) {
+    public void onSubtitleText(final double startTime, final double length, String align, final String buffer) {
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -375,7 +385,7 @@ public class HLSPlayer extends BasePlayerView implements
                     mListenerExecutor.executeOnSubtitleText(startTime, length, buffer);
                 }
             }
-        }, (int)(startTime * 1000));
+        }, (int)(startTime));
 
     }
 
@@ -392,4 +402,8 @@ public class HLSPlayer extends BasePlayerView implements
         }
         mListenerExecutor.executeOnTextTracksList(list, defaultTrackIndex);
     }
+    public void onDurationChanged(int msec) {
+        mListenerExecutor.executeOnDurationChanged(msec);
+    }
+
 }

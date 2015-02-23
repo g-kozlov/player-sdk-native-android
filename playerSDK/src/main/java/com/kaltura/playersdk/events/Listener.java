@@ -72,7 +72,8 @@ public abstract class Listener {
         TEXT_TRACK_TEXT_LISTENER_TYPE("loadEmbeddedCaptions"),
         TOGGLE_FULLSCREEN_LISTENER_TYPE(""),
         WEB_VIEW_MINIMIZE_LISTENER_TYPE(""),
-        KPLAYER_EVENT_LISTENER_TYPE("");
+        KPLAYER_EVENT_LISTENER_TYPE(""),
+        DURATION_CHANGED_LISTENER_TYPE("");
 
         private final String notifyLabel;
 
@@ -83,5 +84,6 @@ public abstract class Listener {
         public String getNotifierLabel(){
             return notifyLabel;
         }
+
     }
 }
