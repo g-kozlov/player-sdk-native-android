@@ -553,8 +553,14 @@ public class PlayerViewController extends RelativeLayout {
 
         // listens for progress events and notify javascript
         mVideoInterface.registerListener(new OnProgressUpdateListener() {
+            private boolean bufferReady = true;
             @Override
             public void onProgressUpdate(int progress) {
+                boolean curBufferReady = progress > 90;
+                if(curBufferReady != bufferReady){
+                    bufferReady = curBufferReady;
+                    notifyKPlayer("trigger", new Object[]{"bufferchange", bufferReady});
+                }
                 double percent = progress / 100.0;
                 notifyKPlayer("trigger", new Object[]{"progress", percent});
 
