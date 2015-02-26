@@ -556,7 +556,7 @@ public class PlayerViewController extends RelativeLayout {
             private boolean bufferReady = true;
             @Override
             public void onProgressUpdate(int progress) {
-                boolean curBufferReady = progress > 90;
+                boolean curBufferReady = progress > 95;
                 if(curBufferReady != bufferReady){
                     bufferReady = curBufferReady;
                     notifyKPlayer("trigger", new Object[]{"bufferchange", bufferReady});
