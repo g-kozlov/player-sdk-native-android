@@ -116,6 +116,10 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         return mState;
     }
 
+    public void freeze() {
+        mCanPause = false; //isPlaying() will return false
+    }
+
     public interface KControlsViewClient {
         void handleHtml5LibCall(String functionName, int callbackId, String args);
         void openURL(String url);
@@ -215,8 +219,14 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
                 break;
             case SEEKED:
                 if (mSeekCallback != null) {
-                    mSeekCallback.seeked(mSeekedToValue);
-                    mSeekCallback = null;
+                    postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSeekCallback.seeked(mSeekedToValue);
+                            mSeekCallback = null;
+                        }
+                    }, 2000);
+
                 }
                 break;
             case UNKNOWN:
