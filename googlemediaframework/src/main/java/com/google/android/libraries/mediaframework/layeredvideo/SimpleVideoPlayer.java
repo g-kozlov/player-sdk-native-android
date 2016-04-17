@@ -126,11 +126,12 @@ public class SimpleVideoPlayer {
 
   private boolean checkIfSoftwareDecoderPrefered() {
 
-    boolean isSoftwareDecoderPrefered = false;
+    /*boolean isSoftwareDecoderPrefered = false;
     if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
       isSoftwareDecoderPrefered = true;
     }
-    return isSoftwareDecoderPrefered;
+    return isSoftwareDecoderPrefered;*/
+    return true;
   }
 
   /**

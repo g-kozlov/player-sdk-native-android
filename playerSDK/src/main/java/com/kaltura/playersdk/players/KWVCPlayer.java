@@ -42,7 +42,8 @@ public class KWVCPlayer
     @Nullable private PlayheadTracker mPlayheadTracker;
     private PrepareState mPrepareState;
     @NonNull private PlayerState mSavedState;
-    
+    private boolean isFirstPreparation = true;
+
     public static Set<MediaFormat> supportedFormats(Context context) {
         if (WidevineDrmClient.isSupported(context)) {
             return Collections.singleton(MediaFormat.wvm_widevine);
@@ -108,6 +109,7 @@ public class KWVCPlayer
         mAssetUri = source;
 
         if (mLicenseUri != null) {
+            isFirstPreparation = true;
             preparePlayer();
         } else {
             Log.d(TAG, "setPlayerSource: waiting for licenseUri.");
@@ -148,6 +150,8 @@ public class KWVCPlayer
         // If already playing, don't do anything.
         if (mPlayer != null && mPlayer.isPlaying()) {
             return;
+        } else if(mPlayer == null){
+            return;
         }
 
         // If play should be canceled, don't even start.
@@ -164,6 +168,12 @@ public class KWVCPlayer
         }
 
         assert mPlayer != null;
+
+        if (mSavedState.position != 0) {
+            setCurrentPlaybackTime(mSavedState.position);
+            mSavedState.position = 0;
+        }
+
         mPlayer.start();
 
         if (mPlayheadTracker == null) {
@@ -182,9 +192,6 @@ public class KWVCPlayer
             }
         }
         //saveState();
-        /*if (mPlayheadTracker != null) {
-            mPlayheadTracker.stop();
-        }*/
         stopPlayheadTracker();
     }
 
@@ -231,10 +238,6 @@ public class KWVCPlayer
     private void savePlayerState() {
         saveState();
         pause();
-        /*if (mPlayheadTracker != null) {
-            mPlayheadTracker.stop();
-            mPlayheadTracker = null;
-        }*/
     }
 
     private void recoverPlayerState() {
@@ -247,6 +250,7 @@ public class KWVCPlayer
     @Override
     public void freezePlayer() {
         if (mPlayer != null) {
+            mSavedState.position = mPlayer.getCurrentPosition();
             mPlayer.suspend();
         }
     }
@@ -292,7 +296,6 @@ public class KWVCPlayer
     }
 
     private void preparePlayer() {
-
         if (mAssetUri==null || mLicenseUri==null) {
             String errMsg  = "Prepare error: both assetUri and licenseUri must be set";
             Log.e(TAG, errMsg);
@@ -343,6 +346,9 @@ public class KWVCPlayer
         mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                if(mPrepareState == PrepareState.Prepared && isPlaying()){
+                    return;
+                }
 
                 mPrepareState = PrepareState.Prepared;
 
@@ -359,7 +365,9 @@ public class KWVCPlayer
                 mp.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                     @Override
                     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                        mListener.eventWithValue(KWVCPlayer.this, KPlayerListener.BufferingChangeKey, percent < 100 ? "true" : "false");
+                        if(percent > 0) {
+                            mListener.eventWithValue(KWVCPlayer.this, KPlayerListener.BufferingChangeKey, percent < 100 ? "true" : "false");
+                        }
                     }
                 });
 
@@ -368,11 +376,13 @@ public class KWVCPlayer
                     mPlayer.seekTo(mSavedState.position);
                     play();
                 } else {
-                    mListener.eventWithValue(kplayer, KPlayerListener.DurationChangedKey, Float.toString(kplayer.getDuration() / 1000f));
-                    mListener.eventWithValue(kplayer, KPlayerListener.LoadedMetaDataKey, "");
-                    mListener.eventWithValue(kplayer, KPlayerListener.CanPlayKey, null);
-                    mCallback.playerStateChanged(KPlayerCallback.CAN_PLAY);
-
+                    if(isFirstPreparation) {
+                        isFirstPreparation = false;
+                        mListener.eventWithValue(kplayer, KPlayerListener.DurationChangedKey, Float.toString(kplayer.getDuration() / 1000f));
+                        mListener.eventWithValue(kplayer, KPlayerListener.LoadedMetaDataKey, "");
+                        mListener.eventWithValue(kplayer, KPlayerListener.CanPlayKey, null);
+                        mCallback.playerStateChanged(KPlayerCallback.CAN_PLAY);
+                    }
                     if (mShouldPlayWhenReady) {
                         play();
                         mShouldPlayWhenReady = false;
