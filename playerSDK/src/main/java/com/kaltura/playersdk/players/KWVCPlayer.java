@@ -346,7 +346,7 @@ public class KWVCPlayer
         mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                if(mPrepareState == PrepareState.Prepared && isPlaying()){
+                if(mPrepareState == PrepareState.Prepared){
                     return;
                 }
 
