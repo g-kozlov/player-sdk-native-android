@@ -192,6 +192,7 @@ public class KWVCPlayer
             }
         }
         //saveState();
+        savePosition();
         stopPlayheadTracker();
     }
 
@@ -235,6 +236,12 @@ public class KWVCPlayer
         // TODO: forward to player
     }
 
+    public void savePosition() {
+        if(mPlayer != null) {
+            mSavedState.position = mPlayer.getCurrentPosition();
+        }
+    }
+
     private void savePlayerState() {
         saveState();
         pause();
@@ -250,7 +257,7 @@ public class KWVCPlayer
     @Override
     public void freezePlayer() {
         if (mPlayer != null) {
-            mSavedState.position = mPlayer.getCurrentPosition(); // save state should not be forced, but position should always be kept
+            //mSavedState.position = mPlayer.getCurrentPosition(); // save state should not be forced, but position should always be kept
             mPlayer.suspend();
         }
     }
