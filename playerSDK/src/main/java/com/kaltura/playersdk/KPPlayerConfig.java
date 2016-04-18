@@ -2,8 +2,6 @@ package com.kaltura.playersdk;
 
 import android.net.Uri;
 
-
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

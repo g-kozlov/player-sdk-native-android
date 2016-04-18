@@ -162,6 +162,7 @@ public class KExoPlayer extends FrameLayout implements KPlayer, ExoplayerWrapper
                         return;
                     }
                     mExoPlayer.addListener(KExoPlayer.this);
+
                     mExoPlayer.prepare();
 
                 } else {

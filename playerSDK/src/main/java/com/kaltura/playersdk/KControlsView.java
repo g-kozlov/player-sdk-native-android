@@ -3,10 +3,12 @@ package com.kaltura.playersdk;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -164,7 +166,6 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         this.getSettings().setUserAgentString(this.getSettings().getUserAgentString() + " kalturaNativeCordovaPlayer");
         this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         this.setBackgroundColor(0);
-        setWebContentsDebuggingEnabled(true);
     }
     
 
@@ -247,21 +248,31 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         this.loadUrl(KStringUtilities.triggerEventWithJSON(event, jsonString));
     }
 
+    private WebResourceResponse getWhiteFaviconResponse() {
+        // 16x16 white favicon
+        byte[] data = Base64.decode("AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 0);
+        return new WebResourceResponse("image/x-icon", null, new ByteArrayInputStream(data));
+    }
+
     private WebResourceResponse getResponse(Uri requestUrl, Map<String, String> headers, String method) {
         // Only handle http(s)
         if (!requestUrl.getScheme().startsWith("http")) {
             Log.d(TAG, "Will not handle " + requestUrl);
             return null;
         }
-        try {
-            if (mCacheManager != null) {
-                return mCacheManager.getResponse(requestUrl, headers, method);
+        WebResourceResponse response = null;
+        if (mCacheManager != null) {
+            try {
+                response = mCacheManager.getResponse(requestUrl, headers, method);
+            } catch (IOException e) {
+                if (requestUrl.getPath().endsWith("favicon.ico")) {
+                    response = getWhiteFaviconResponse();
+                } else {
+                    Log.e(TAG, "getResponse From CacheManager error::", e);
+                }
             }
-            return null;
-        } catch (IOException e) {
-            Log.e(TAG, "getResponse From CacheManager error::", e);
-            return null;
         }
+        return response;
     }
 
     @JavascriptInterface
@@ -273,8 +284,25 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         }
     }
 
+    @Override
+    public void destroy() {
+        Log.d(TAG, "destroy()");
+        super.destroy();
+    }
 
     private class CustomWebViewClient extends WebViewClient {
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            Log.d(TAG, "onPageStarted:" + url);
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            Log.d(TAG, "onPageFinished:" + url);
+            super.onPageFinished(view, url);
+        }
 
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             Log.d(TAG, "shouldOverrideUrlLoading: " + url);
@@ -304,7 +332,6 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
 //            controlsViewClient.handleKControlsError(new KPError(error.toString()));
             Log.e("WebViewError", request.getUrl().toString());
-
         }
 
         @Override
@@ -341,7 +368,9 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            return handleWebRequest(view, request.getUrl().toString(), request.getRequestHeaders(), request.getMethod());
+            Map<String, String> headers = request.getRequestHeaders();
+            String method = request.getMethod();
+            return handleWebRequest(view, request.getUrl().toString(), headers, method);
         }
     }
 }

@@ -171,7 +171,7 @@ public class KWVCPlayer
 
         if (mSavedState.position != 0) {
             setCurrentPlaybackTime(mSavedState.position);
-            mSavedState.position = 0;
+            //TODO - test this mSavedState.position = 0; //?
         }
 
         mPlayer.start();
@@ -250,7 +250,7 @@ public class KWVCPlayer
     @Override
     public void freezePlayer() {
         if (mPlayer != null) {
-            mSavedState.position = mPlayer.getCurrentPosition();
+            mSavedState.position = mPlayer.getCurrentPosition(); // save state should not be forced, but position should always be kept
             mPlayer.suspend();
         }
     }
@@ -346,7 +346,7 @@ public class KWVCPlayer
         mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                if(mPrepareState == PrepareState.Prepared){
+                if(mPrepareState == PrepareState.Prepared){ //prevent force play if already prepared
                     return;
                 }
 
