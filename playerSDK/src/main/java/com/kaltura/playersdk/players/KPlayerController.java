@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -15,7 +16,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.kaltura.playersdk.helpers.KIMAManager;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 
@@ -111,6 +114,7 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     }
 
     public void play() {
+        Log.d("trace", "KPlayerController:play ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
         if (isBackgrounded && isIMAActive) {
             imaManager.resume();
             return;
@@ -126,6 +130,8 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     }
 
     public void pause() {
+        Log.d("trace", "KPlayerController:pause ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         if (!isCasting) {
             if (isBackgrounded && isIMAActive) {
                 if(imaManager != null) {
@@ -268,6 +274,8 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     }
 
     public void setSrc(String src) {
+        Log.d("trace", "KPlayerController:setSrc start ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         isPlayerCanPlay = false;
         if (switchingBackFromCasting) {
             switchingBackFromCasting = false;
@@ -303,6 +311,9 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
         this.player.setPlayerCallback(this);
         this.src = src;
         this.player.setPlayerSource(src);
+
+        Log.d("trace", "KPlayerController:setSrc end ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
     }
 
     public void setLicenseUri(String uri) {
@@ -321,6 +332,9 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     }
 
     private void addAdPlayer() {
+        Log.d("trace", "KPlayerController:addAdPlayer ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
+        player.hide();
 
         // Add adPlayer view
         adPlayerContainer = new FrameLayout(mActivity.get());
@@ -342,6 +356,8 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     }
 
     private void removeAdPlayer() {
+        Log.d("trace", "KPlayerController:removeAdPlayer ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         if (parentViewController != null) {
             mActivity = null;
             imaManager.destroy();
@@ -401,6 +417,8 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
     public void playerStateChanged(int state) {
         switch (state) {
             case KPlayerCallback.CAN_PLAY:
+                Log.d("trace", "KPlayerController:ready ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
                 isPlayerCanPlay = true;
                 if (mActivity != null && !isIMAActive) {
                     addAdPlayer();
@@ -411,11 +429,17 @@ public class KPlayerController implements KPlayerCallback, ContentProgressProvid
                 }
                 break;
             case KPlayerCallback.SHOULD_PLAY:
+                Log.d("trace", "KPlayerController:end of ad - should play ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
+                player.show();
+
                 isIMAActive = false;
                 player.setShouldCancelPlay(false);
                 player.play();
                 break;
             case KPlayerCallback.SHOULD_PAUSE:
+                Log.d("trace", "KPlayerController:ad should start ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
                 isIMAActive = true;
                 player.pause();
                 break;

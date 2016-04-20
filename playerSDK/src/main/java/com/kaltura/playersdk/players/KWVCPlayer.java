@@ -1,6 +1,7 @@
 package com.kaltura.playersdk.players;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -16,7 +17,9 @@ import android.widget.VideoView;
 import com.kaltura.playersdk.widevine.WidevineDrmClient;
 
 import java.security.PublicKey;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.crypto.interfaces.PBEKey;
@@ -105,7 +108,7 @@ public class KWVCPlayer
 
     @Override
     public void setPlayerSource(String source) {
-
+        Log.d("trace", "KWVCPlayer:setPlayerSource ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
         mAssetUri = source;
 
         if (mLicenseUri != null) {
@@ -118,6 +121,7 @@ public class KWVCPlayer
 
     @Override
     public void setLicenseUri(String licenseUri) {
+        Log.d("trace", "KWVCPlayer:setLicenseUri ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
         mLicenseUri = licenseUri;
 
         if (mAssetUri != null) {
@@ -148,9 +152,7 @@ public class KWVCPlayer
     public void play() {
 
         // If already playing, don't do anything.
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            return;
-        } else if(mPlayer == null){
+        if (mPlayer == null || mPlayer.isPlaying()) {
             return;
         }
 
@@ -167,13 +169,13 @@ public class KWVCPlayer
             return;
         }
 
-        assert mPlayer != null;
-
         if (mSavedState.position != 0) {
-            setCurrentPlaybackTime(mSavedState.position);
-            //TODO - test this mSavedState.position = 0; //?
+            mShouldPlayWhenReady = true;
+            setCurrentPlaybackTime(mSavedState.position); // will start playing after seek complete
+            return;
+            //mSavedState.position = 0;
         }
-
+        Log.d("trace", "KWVCPlayer:play start player ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
         mPlayer.start();
 
         if (mPlayheadTracker == null) {
@@ -185,14 +187,13 @@ public class KWVCPlayer
 
     @Override
     public void pause() {
+        Log.d("trace", "KWVCPlayer:pause ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
         if (mPlayer != null) {
             if (mPlayer.isPlaying()) {
                 mPlayer.pause();
                 changePlayPauseState("pause");
             }
         }
-        //saveState();
-        savePosition();
         stopPlayheadTracker();
     }
 
@@ -248,8 +249,11 @@ public class KWVCPlayer
     }
 
     private void recoverPlayerState() {
-        mPlayer.seekTo(mSavedState.position);
-        if (mSavedState.playing) {
+        if(getCurrentPlaybackTime() != mSavedState.position) {
+            mPlayer.seekTo(mSavedState.position);
+            mShouldPlayWhenReady = mSavedState.playing;
+
+        } else if (mSavedState.playing){
             play();
         }
     }
@@ -258,6 +262,7 @@ public class KWVCPlayer
     public void freezePlayer() {
         if (mPlayer != null) {
             //mSavedState.position = mPlayer.getCurrentPosition(); // save state should not be forced, but position should always be kept
+            savePosition();
             mPlayer.suspend();
         }
     }
@@ -293,6 +298,7 @@ public class KWVCPlayer
     @Override
     public void recoverPlayer() {
         if (mPlayer != null) {
+            mSavedState.set(false, mSavedState.position);
             mPlayer.resume();
         }
     }
@@ -303,6 +309,8 @@ public class KWVCPlayer
     }
 
     private void preparePlayer() {
+        Log.d("trace", "KWVCPlayer:preparePlayer ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         if (mAssetUri==null || mLicenseUri==null) {
             String errMsg  = "Prepare error: both assetUri and licenseUri must be set";
             Log.e(TAG, errMsg);
@@ -319,6 +327,8 @@ public class KWVCPlayer
 
         // Start preparing.
         mPrepareState = PrepareState.Preparing;
+        Log.d("trace", "KWVCPlayer:preparePlayer creating VideoView ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         mPlayer = new VideoView(getContext());
         LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
         this.addView(mPlayer, lp);
@@ -326,7 +336,9 @@ public class KWVCPlayer
         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                mCallback.playerStateChanged(KPlayerCallback.ENDED);
+                if(mCallback != null && mp != null) {
+                    mCallback.playerStateChanged(KPlayerCallback.ENDED);
+                }
             }
         });
         mPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -336,8 +348,7 @@ public class KWVCPlayer
                 Log.e(TAG, errMsg);
                 mListener.eventWithValue(KWVCPlayer.this, KPlayerListener.ErrorKey, TAG + "-" + errMsg + "(" + what + "," + extra + ")");
 
-                // TODO
-                return false;
+                return true; // prevents the VideoView error popup
             }
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -353,9 +364,8 @@ public class KWVCPlayer
         mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                if(mPrepareState == PrepareState.Prepared){ //prevent force play if already prepared
-                    return;
-                }
+
+                Log.d("trace", "KWVCPlayer:preparePlayer player prepared, mPrepareState = "+mPrepareState+ " ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
 
                 mPrepareState = PrepareState.Prepared;
 
@@ -364,8 +374,17 @@ public class KWVCPlayer
                 mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
                     @Override
                     public void onSeekComplete(MediaPlayer mp) {
-                        saveState();
+                        Log.d("trace", "KWVCPlayer:onSeekComplete seeked to "+mp.getCurrentPosition()+" mShouldPlayWhenReady "+mShouldPlayWhenReady+" ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
+                        if(mShouldPlayWhenReady){
+                            mShouldPlayWhenReady = false;
+                            mSavedState.set(true, 0);
+                            play();
+                        } else {
+                            saveState();
+                        }
                         mListener.eventWithValue(kplayer, KPlayerListener.SeekedKey, null);
+
                     }
                 });
 
@@ -380,8 +399,13 @@ public class KWVCPlayer
 
                 if (mSavedState.playing) {
                     // we were already playing, so just resume playback from the saved position
-                    mPlayer.seekTo(mSavedState.position);
-                    play();
+                    mShouldPlayWhenReady = true;
+                    if(getCurrentPlaybackTime() != mSavedState.position) {
+                        mPlayer.seekTo(mSavedState.position);
+                    } else {
+                        play();
+                    }
+
                 } else {
                     if(isFirstPreparation) {
                         isFirstPreparation = false;
@@ -391,14 +415,31 @@ public class KWVCPlayer
                         mCallback.playerStateChanged(KPlayerCallback.CAN_PLAY);
                     }
                     if (mShouldPlayWhenReady) {
-                        play();
                         mShouldPlayWhenReady = false;
+                        play();
                     }
                 }
             }
         });
         mPlayer.setVideoURI(Uri.parse(widevineUri));
         mDrmClient.acquireRights(widevineUri, mLicenseUri);
+        Log.d("trace", "KWVCPlayer:preparePlayer end ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
+    }
+
+    public void hide() {
+        if(mPlayer != null){
+            mPlayer.setVisibility(INVISIBLE);
+            //mPlayer.setZOrderMediaOverlay(false);
+        }
+    }
+
+    public void show() {
+        if(mPlayer != null){
+            mPlayer.setVisibility(VISIBLE);
+            //mPlayer.setZOrderMediaOverlay(true);
+
+        }
     }
 
     private enum PrepareState {

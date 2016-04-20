@@ -128,7 +128,13 @@ public class KExoPlayer extends FrameLayout implements KPlayer, ExoplayerWrapper
                 && mExoPlayer.getPlayWhenReady();
     }
 
+     public void hide(){
+         mSurfaceView.setVisibility(INVISIBLE);
+     }
 
+    public void show(){
+        mSurfaceView.setVisibility(VISIBLE);
+    }
 
     private void prepare() {
         

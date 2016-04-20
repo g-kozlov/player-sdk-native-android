@@ -42,9 +42,11 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -190,10 +192,14 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
     }
 
     public void initWithConfiguration(KPPlayerConfig configuration) {
+        Log.d("trace", "PlayerViewController:initWithConfiguration start ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         mConfig = configuration;
         if (mConfig != null) {
             setComponents(mConfig.getVideoURL());
         }
+        Log.d("trace", "PlayerViewController:initWithConfiguration end ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
     }
 
     public void loadPlayerIntoActivity(Activity activity) {
@@ -236,7 +242,10 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
     }
 
     public void changeConfiguration(KPPlayerConfig config) {
+        Log.d("trace", "PlayerViewController:changeConfiguration ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
+
         if (config != null) {
+
             mConfig = config;
             mWebView.setVisibility(INVISIBLE);
             mWebView.clearCache(true);
