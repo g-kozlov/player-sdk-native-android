@@ -339,6 +339,15 @@ public class WidevineDrmClient {
         }
     }
 
+    public boolean needToAcquireRights(String assetUri){
+        mDrmManager.acquireDrmInfo(createDrmInfoRequest(assetUri));
+        int rightsStatus = mDrmManager.checkRightsStatus(assetUri);
+        if(rightsStatus == DrmStore.RightsStatus.RIGHTS_INVALID){
+            mDrmManager.removeRights(assetUri);
+        }
+        return rightsStatus != DrmStore.RightsStatus.RIGHTS_VALID;
+    }
+
     public RightsInfo getRightsInfo(String assetUri) {
 
         // Need to use acquireDrmInfo prior to calling checkRightsStatus
