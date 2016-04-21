@@ -439,8 +439,8 @@ public class KWVCPlayer
             }
         });
         mPlayer.setVideoURI(Uri.parse(widevineUri));
-        if(mDrmClient.needToAcquireRights(widevineUri)) {
-            mDrmClient.acquireRights(widevineUri, mLicenseUri);
+        if(mDrmClient.needToAcquireRights(mAssetUri)) {
+            mDrmClient.acquireRights(mAssetUri, mLicenseUri);
         }
         Log.d("trace", "KWVCPlayer:preparePlayer end ["+new SimpleDateFormat("mm:ss:SS", Locale.getDefault()).format(System.currentTimeMillis())+"]");
 
