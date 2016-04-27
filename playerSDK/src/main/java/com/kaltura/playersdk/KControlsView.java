@@ -247,7 +247,7 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
     public void triggerEventWithJSON(String event, String jsonString) {
         this.loadUrl(KStringUtilities.triggerEventWithJSON(event, jsonString));
     }
-
+    
     private WebResourceResponse getWhiteFaviconResponse() {
         // 16x16 white favicon
         byte[] data = Base64.decode("AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 0);
@@ -331,19 +331,16 @@ public class KControlsView extends WebView implements View.OnTouchListener, KMed
         @Override
         public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
 //            controlsViewClient.handleKControlsError(new KPError(error.toString()));
-            Log.e("WebViewError", request.getUrl().toString());
         }
 
         @Override
         public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
 //            controlsViewClient.handleKControlsError(new KPError(errorResponse.toString()));
-            Log.e("WebViewError", request.getUrl().toString());
         }
 
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
 //            controlsViewClient.handleKControlsError(new KPError(error.toString()));
-            Log.e("WebViewError", error.getUrl().toString());
         }
 
         private WebResourceResponse textResponse(String text) {
