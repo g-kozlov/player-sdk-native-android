@@ -815,7 +815,7 @@ public class PlayerViewController extends RelativeLayout implements KControlsVie
                     attributeValue = getOverrideURL(mConfig.getEntryId(), attributeValue);
                     this.playerController.setSrc(attributeValue);
                     if (mConfig.getContentPreferredBitrate() != -1) {
-                        playerController.setContentPreferredBitrate(mConfig.getContentPreferredBitrate());
+                        playerController.(mConfig.getContentPreferredBitrate());
                     }
                     if (mConfig.getMediaPlayFrom() > 0) {
                         playerController.setCurrentPlaybackTime((float) mConfig.getMediaPlayFrom());
