@@ -104,6 +104,12 @@
                 android:layout_height="wrap_content"
                 android:text="Example Local res"
                 android:id="@+id/radioCheckLocal"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Example ChromeCast"
+                android:id="@+id/radioCheckChromecast"/>
         </RadioGroup>
 
         <Button

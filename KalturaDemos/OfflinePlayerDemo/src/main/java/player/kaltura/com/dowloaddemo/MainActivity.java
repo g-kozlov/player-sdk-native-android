@@ -20,11 +20,17 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.google.android.gms.cast.CastDevice;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.kaltura.playersdk.KPPlayerConfig;
 import com.kaltura.playersdk.LocalAssetsManager;
 import com.kaltura.playersdk.PlayerViewController;
+import com.kaltura.playersdk.casting.KCastDevice;
+import com.kaltura.playersdk.casting.KCastProviderImpl;
 import com.kaltura.playersdk.events.KPEventListener;
 import com.kaltura.playersdk.events.KPlayerState;
+import com.kaltura.playersdk.interfaces.KCastProvider;
+import com.kaltura.playersdk.interfaces.ScanCastDeviceListener;
 import com.kaltura.playersdk.types.KPError;
 
 import java.util.Timer;
@@ -38,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int DEMO_1 = 1;
     public static final int DEMO_2 = 2;
     public static final int DEMO_LOCAL = 3;
+    public static final int DEMO_CHROMECAST = 4;
 
     private static final String TAG = "ChangeMediaDemo";
     private Button mPlayPauseButton;
@@ -49,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private String currentMediaId;
     private int mDemoType;
+    private KCastProviderImpl mChromeCastProvider;
 
     private KPPlayerConfig config;
     @Override
@@ -186,16 +194,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private KPPlayerConfig getConfig() {
+        String url = "http://kgit.html5video.org/tags/v2.44/mwEmbedFrame.php";
+        String uiConf = "32855491";
+        String parentID = "1424501";
         switch (mDemoType) {
             case DEMO_1:
-                config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.44/mwEmbedFrame.php", "32855491", "1424501").setEntryId(currentMediaId);
+                config = new KPPlayerConfig(url, uiConf, parentID).setEntryId(currentMediaId);
                 config.addConfig("doubleClick.adTagUrl", "http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=[timestamp]");
                 config.addConfig("doubleClick.plugin", "true");
                 config.setAutoPlay(true);
                 mPlayer.setCustomSourceURLProvider(null);
                 break;
             case DEMO_2:
-                config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.44/mwEmbedFrame.php", "32855491", "1424501").setEntryId(currentMediaId);
+                config = new KPPlayerConfig(url, uiConf, parentID).setEntryId(currentMediaId);
                 config.addConfig("doubleClick.adTagUrl", "http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=[timestamp]");
                 config.addConfig("doubleClick.plugin", "true");
                 config.addConfig("closedCaptions.plugin", "false");
@@ -207,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPlayer.setCustomSourceURLProvider(null);
                 break;
             case DEMO_LOCAL:
-                config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.44/mwEmbedFrame.php", "32855491", "1424501").setEntryId(currentMediaId);
+                config = new KPPlayerConfig(url, uiConf, parentID).setEntryId(currentMediaId);
                 config.setAutoPlay(true);
                 PlayerViewController.SourceURLProvider mSourceURLProvider = new PlayerViewController.SourceURLProvider() {
                     @Override
@@ -227,6 +238,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.e("local Player", "Register failed - " + error.getMessage());
                     }
                 });
+                break;
+            case DEMO_CHROMECAST:
+                config = new KPPlayerConfig(url, uiConf, parentID).setEntryId(currentMediaId);
+                config.setAutoPlay(true);
+                config.addConfig("chromecast.plugin", "true");
+                config.addConfig("chromecast.useKalturaPlayer", "true");
+                //mPlayer.getKCastRouterManager().
+                //mPlayer.get
+                mChromeCastProvider.startScan(this, "48A28189");
                 break;
         }
         //config.setAutoPlay(true);
@@ -389,6 +409,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.radioCheckLocal:
                 mDemoType = DEMO_LOCAL;
+                break;
+            case R.id.radioCheckChromecast:
+                mDemoType = DEMO_CHROMECAST;
                 break;
         }
     }
