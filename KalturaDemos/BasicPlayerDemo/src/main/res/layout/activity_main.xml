@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kaltura.basicplayerdemo.MainActivity"
     android:weightSum="10"
     android:orientation="vertical">
     <RelativeLayout
@@ -70,6 +69,16 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/audio_controls"
             android:layout_toEndOf="@+id/audio_controls" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:id="@+id/next_btn"
+            android:visibility="visible"
+            android:onClick="showTextPopup"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true" />
 
     </RelativeLayout>
 

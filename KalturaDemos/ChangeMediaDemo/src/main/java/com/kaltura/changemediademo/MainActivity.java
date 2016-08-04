@@ -123,7 +123,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             config.addConfig("controlBarContainer.plugin", "false");
             config.addConfig("topBarContainer.plugin", "false");
             config.addConfig("largePlayBtn.plugin", "false");
-            //config.addConfig("autoPlay", "true");
+            config.addConfig("DoubleClick.plugin", "true");
+            config.addConfig("autoPlay", "true");
             mPlayer.initWithConfiguration(config);
 
             mPlayer.addEventListener(this);

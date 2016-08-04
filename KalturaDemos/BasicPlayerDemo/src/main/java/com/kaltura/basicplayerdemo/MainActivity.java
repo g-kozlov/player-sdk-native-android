@@ -27,6 +27,11 @@ import com.kaltura.playersdk.tracks.TrackFormat;
 import com.kaltura.playersdk.tracks.TrackType;
 import com.kaltura.playersdk.types.KPError;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int MENU_GROUP_TRACKS = 1;
     private static final int TRACK_DISABLED = -1;
     private static final int ID_OFFSET = 2;
+    private final String adUrl2 = "http://dpndczlul8yjf.cloudfront.net/creatives/assets/79dba610-b5ee-448b-8e6b-531b3d3ebd54/5fe7eb54-0296-4688-af06-9526007054a4.mp4";
+    private final String adUrl = "http://dpndczlul8yjf.cloudfront.net/creatives/assets/c00cfcf0-985c-4d83-b32a-af8824025e9b/fa69a864-0e37-4597-b2f0-bdaceb16b56b.mp4";
 
     private Button mPlayPauseButton;
     private SeekBar mSeekBar;
@@ -48,12 +55,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private RelativeLayout.LayoutParams defaultVideoViewParams;
     private int defaultScreenOrientationMode;
+    private ArrayList<String> mEntyIds;
+    private ListIterator<String> mListIterator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         setContentView(R.layout.activity_main);
+        initEntryIds();
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
@@ -71,34 +81,96 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             }
         });
+        findViewById(R.id.next_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Next selected");
+                mPlayer.getMediaControl().pause();
+                mPlayer.detachView();
+
+                String entryId = getNextEntryId();
+                try {
+                    KPPlayerConfig config = KPPlayerConfig.fromJSONObject(new JSONObject(getJson(Long.parseLong(entryId))));
+                    mPlayer.changeConfiguration(config);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //mPlayer.re();
+            }
+        });
         mSeekBar = (SeekBar)findViewById(R.id.seekBar);
         mSeekBar.setOnSeekBarChangeListener(this);
         onCreate = true;
         getPlayer();
     }
 
+    private void initEntryIds() {
+        mEntyIds = new ArrayList<>();
+        mEntyIds.add("308649");
+        mEntyIds.add("308650");
+        //mEntyIds.add("435638");
+        //mEntyIds.add("435616");
+        mEntyIds.add("308651");
+        mEntyIds.add("308652");
+        mListIterator = mEntyIds.listIterator();
+    }
 
+    public String getNextEntryId() {
+        if (mListIterator.hasNext()) {
+            return mListIterator.next();
+        }
+        else {
+            mListIterator = mEntyIds.listIterator();
+            return mListIterator.next();
+        }
+    }
 
     private PlayerViewController getPlayer() {
         if (mPlayer == null) {
             mPlayer = (PlayerViewController)findViewById(R.id.player);
             mPlayer.loadPlayerIntoActivity(this);
 
-            KPPlayerConfig config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.46.rc6/mwEmbedFrame.php", "31638861", "1831271").setEntryId("1_ng282arr");
+            //KPPlayerConfig config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.46.rc6/mwEmbedFrame.php", "31638861", "1831271").setEntryId("1_ng282arr");
             //KPPlayerConfig config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.44/mwEmbedFrame.php", "12905712", "243342").setEntryId("0_uka1msg4");
-            config.setAutoPlay(true);
-            mPlayPauseButton.setText("Pause");
+            //mPlayPauseButton.setText("Pause");
 
             //config.addConfig("controlBarContainer.hover", "true");
-            config.addConfig("closedCaptions.plugin", "true");
+            /*config.addConfig("closedCaptions.plugin", "true");
             config.addConfig("sourceSelector.plugin", "true");
             config.addConfig("sourceSelector.displayMode", "bitrate");
             config.addConfig("audioSelector.plugin", "true");
-            config.addConfig("closedCaptions.showEmbeddedCaptions", "true");
+            config.addConfig("closedCaptions.showEmbeddedCaptions", "true");*/
 
+            String json = getJson(Long.parseLong(getNextEntryId()));
 
+            KPPlayerConfig config = null;
+            try {
+                config = KPPlayerConfig.fromJSONObject(new JSONObject(json));
+
+                config.addConfig("topBarContainer.hover", "true");
+                //config.addConfig("autoPlay", "true");
+                config.addConfig("controlBarContainer.plugin", "true");
+                config.addConfig("durationLabel.prefix", " ");
+                config.addConfig("largePlayBtn.plugin", "true");
+                //        config.addConfig("mediaProxy.mediaPlayFrom", String.valueOf("100"));
+                config.addConfig("scrubber.sliderPreview", "false");
+                //config.addConfig("largePlayBtn","false");
+                //config.addConfig("debugKalturaPlayer", "true");
+                config.addConfig("EmbedPlayer.HidePosterOnStart", "true");
+                mPlayer.setKDPAttribute("nextBtnComponent", "visible", "false");
+                mPlayer.setKDPAttribute("prevBtnComponent", "visible", "false");
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            config.setAutoPlay(true);
             mPlayer.initWithConfiguration(config);
-
+            mPlayer.setCustomSourceURLProvider(new PlayerViewController.SourceURLProvider() {
+                @Override
+                public String getURL(String entryId, String currentURL) {
+                    return adUrl2;
+                }
+            });
             mPlayer.setOnKPErrorEventListener(this);
             mPlayer.setOnKPPlayheadUpdateEventListener(this);
             //mPlayer.setOnKPFullScreenToggeledEventListener(this);
@@ -114,6 +186,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //mPlayer.setAudioTrackEventListener(this);
         }
         return mPlayer;
+    }
+
+    public String getJson(long mediaID) {
+        String json = "{\n" +
+                "  \"base\": {\n" +
+                "    \"server\": \"http://52.17.68.92/DVV/v2.45/mwEmbed/mwEmbedFrame.php\n\",\n" +
+                "    \"partnerId\": \"\",\n" +
+                "    \"uiConfId\": \"35629551\",\n" +
+
+                "    \"entryId\": \"" + mediaID + "\"\n" +
+                "  },\n" +
+                "  \"extra\": {\n" +
+                "    \"controlBarContainer.hover\": true,\n" +
+                "    \"controlBarContainer.plugin\": true,\n" +
+                "    \"kidsPlayer.plugin\": true,\n" +
+                "    \"nextBtnComponent.plugin\": true,\n" +
+                "    \"prevBtnComponent.plugin\": true,\n" +
+                "    \n" +
+                "    \"liveCore.disableLiveCheck\": true,\n" +
+                "    \"tvpapiGetLicensedLinks.plugin\": true,\n" +
+                "    \"TVPAPIBaseUrl\": \"http://tvpapi-stg.as.tvinci.com/v3_9/gateways/jsonpostgw.aspx?m=\",\n" +
+                "    \"proxyData\": {\n";
+
+        json = json + "      \"MediaID\": \"" + mediaID + "\",\n" +
+                "      \"iMediaID\": \"" + mediaID + "\",\n" +
+                "      \"mediaType\": \"0\",\n" +
+                "      \"picSize\": \"640x360\",\n" +
+                "      \"withDynamic\": \"false\",\n" +
+                "      \"initObj\": {\n" +
+                "        \"ApiPass\": \"11111\",\n" +
+                "        \"ApiUser\": \"tvpapi_394\",\n" +
+                "        \"DomainID\": 0,\n" +
+                "        \"Locale\": {\n" +
+                "            \"LocaleCountry\": \"null\",\n" +
+                "            \"LocaleDevice\": \"null\",\n" +
+                "            \"LocaleLanguage\": \"null\",\n" +
+                "            \"LocaleUserState\": \"Unknown\"\n" +
+                "        },\n" +
+                "        \"Platform\": \"Cellular\",\n" +
+                "        \"SiteGuid\": \"USER_ID\",\n" +
+                "        \"UDID\": \"aa5e1b6c96988d68\"\n" +
+                "      }\n" +
+                "    },\n" +
+                " \"streamerType\": \"auto\",\n" +
+                " \"EmbedPlayer.NotPlayableDownloadLink\" : \"false\",\n" +
+                " \"autoPlay\": \"true\"\n" +
+                "  }\n" +
+                "}\n";
+        return json;
     }
 
     private RelativeLayout getPlayerContainer() {

@@ -33,6 +33,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -66,13 +67,16 @@ public class MainActivity extends AppCompatActivity
     private int currentAdIndex = 0;
     int randomNum = 0;
     private KPPlayerConfig config = null;
-
+    private ArrayList<String> mEntyIds;
+    private ListIterator<String> mListIterator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
+
+        initEntryIds();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity
                     mPlayer.detachView();
 
                     try {
-                        config = KPPlayerConfig.fromJSONObject(new JSONObject(getJson("388409")));
+                        config = KPPlayerConfig.fromJSONObject(new JSONObject(getJson(Long.parseLong(getNextEntryId()))));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -143,6 +147,27 @@ public class MainActivity extends AppCompatActivity
         addMultiAdPlayer();
     }
 
+    private void initEntryIds() {
+        mEntyIds = new ArrayList<>();
+        mEntyIds.add("308649");
+        mEntyIds.add("308650");
+        //mEntyIds.add("435638");
+        //mEntyIds.add("435616");
+        mEntyIds.add("308651");
+        mEntyIds.add("308652");
+        mListIterator = mEntyIds.listIterator();
+    }
+
+    public String getNextEntryId() {
+        if (mListIterator.hasNext()) {
+            return mListIterator.next();
+        }
+        else {
+            mListIterator = mEntyIds.listIterator();
+            return mListIterator.next();
+        }
+    }
+
     private PlayerViewController getPlayer() {
         if (mPlayer == null) {
             mPlayer = (PlayerViewController) findViewById(R.id.player);
@@ -162,7 +187,7 @@ public class MainActivity extends AppCompatActivity
 ////            config.addConfig("doubleClick.plugin","true");
 
 
-            String json = getJson("384080"/*"388409"*/);
+            String json = getJson(Long.parseLong(getNextEntryId()));
 
 
             //KPPlayerConfig config = null;
@@ -197,51 +222,27 @@ public class MainActivity extends AppCompatActivity
         return mPlayer;
     }
 
-    public String getJson(String mediaID) {
+    public String getJson(long mediaID) {
         String json = "{\n" +
                 "  \"base\": {\n" +
-                "    \"server\": \"http://player-as.ott.kaltura.com/viacom18/v2.41.2_viacom_v0.19_v0.3.rc9_viacom_proxy_v0.2.2/mwEmbed/mwEmbedFrame.php\",\n" +
-                //                 "    \"server\": \"http://192.168.160.160/html5.kaltura/mwEmbed/mwEmbedFrame.php\",\n" +
-
+                "    \"server\": \"http://52.17.68.92/DVV/v2.45/mwEmbed/mwEmbedFrame.php\n\",\n" +
                 "    \"partnerId\": \"\",\n" +
-                "    \"uiConfId\": \"32626752\",\n" +
-                //"    \"entryId\": \"374130\"\n" +
-                //                 "    \"entryId\": \"384080\"\n" +
+                "    \"uiConfId\": \"35629551\",\n" +
+
                 "    \"entryId\": \"" + mediaID + "\"\n" +
-
-
                 "  },\n" +
                 "  \"extra\": {\n" +
-                "    \"watermark.plugin\": \"true\",\n" +
-                "    \"watermark.img\": \"https://voot-kaltura.s3.amazonaws.com/voot-watermark.png\",\n" +
-                "    \"watermark.title\": \"Viacom18\",\n" +
-                "    \"watermark.cssClass\": \"topRight\",\n" +
-                "    \n" +
                 "    \"controlBarContainer.hover\": true,\n" +
                 "    \"controlBarContainer.plugin\": true,\n" +
-//                    "    \"adultPlayer.plugin\": false,\n" +
                 "    \"kidsPlayer.plugin\": true,\n" +
                 "    \"nextBtnComponent.plugin\": true,\n" +
                 "    \"prevBtnComponent.plugin\": true,\n" +
                 "    \n" +
                 "    \"liveCore.disableLiveCheck\": true,\n" +
                 "    \"tvpapiGetLicensedLinks.plugin\": true,\n" +
-                "    \"TVPAPIBaseUrl\": \"http://tvpapi-as.ott.kaltura.com/v3_4/gateways/jsonpostgw.aspx?m=\",\n" +
+                "    \"TVPAPIBaseUrl\": \"http://tvpapi-stg.as.tvinci.com/v3_9/gateways/jsonpostgw.aspx?m=\",\n" +
                 "    \"proxyData\": {\n";
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 /*4.3*/) {
-            json = json + "\"config\": {\n" +
-                    "                                    \"flavorassets\": {\n" +
-                    "                                        \"filters\": {\n" +
-                    "                                            \"include\": {\n" +
-                    "                                                \"Format\": [\n" +
-                    "                                                    \"dash Main\"\n" +
-                    "                                                ]\n" +
-                    "                                            }\n" +
-                    "                                        }\n" +
-                    "                                    }\n" +
-                    "                                },";
-        }
         json = json + "      \"MediaID\": \"" + mediaID + "\",\n" +
                 "      \"iMediaID\": \"" + mediaID + "\",\n" +
                 "      \"mediaType\": \"0\",\n" +
@@ -249,7 +250,7 @@ public class MainActivity extends AppCompatActivity
                 "      \"withDynamic\": \"false\",\n" +
                 "      \"initObj\": {\n" +
                 "        \"ApiPass\": \"11111\",\n" +
-                "        \"ApiUser\": \"tvpapi_225\",\n" +
+                "        \"ApiUser\": \"tvpapi_394\",\n" +
                 "        \"DomainID\": 0,\n" +
                 "        \"Locale\": {\n" +
                 "            \"LocaleCountry\": \"null\",\n" +
@@ -258,15 +259,16 @@ public class MainActivity extends AppCompatActivity
                 "            \"LocaleUserState\": \"Unknown\"\n" +
                 "        },\n" +
                 "        \"Platform\": \"Cellular\",\n" +
-                "        \"SiteGuid\": \"\",\n" +
+                "        \"SiteGuid\": \"USER_ID\",\n" +
                 "        \"UDID\": \"aa5e1b6c96988d68\"\n" +
                 "      }\n" +
-                "    }\n" +
+                "    },\n" +
+                " \"streamerType\": \"auto\",\n" +
+                " \"EmbedPlayer.NotPlayableDownloadLink\" : \"false\",\n" +
+                " \"autoPlay\": \"true\"\n" +
                 "  }\n" +
                 "}\n";
         return json;
-
-
     }
 
     private RelativeLayout getPlayerContainer() {
