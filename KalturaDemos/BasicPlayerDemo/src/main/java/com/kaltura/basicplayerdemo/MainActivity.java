@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -87,8 +88,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mPlayer = (PlayerViewController)findViewById(R.id.player);
             mPlayer.loadPlayerIntoActivity(this);
 
-            KPPlayerConfig config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.47.rc4/mwEmbedFrame.php", "31638861", "1831271").setEntryId("1_ng282arr");
+            //KPPlayerConfig config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.47.rc4/mwEmbedFrame.php", "31638861", "1831271").setEntryId("1_ng282arr");
             //KPPlayerConfig config = new KPPlayerConfig("http://kgit.html5video.org/tags/v2.46.rc9/mwEmbedFrame.php", "12905712", "243342").setEntryId("0_uka1msg4");
+           /* String DOMAIN = "https://cdnapisec.kaltura.com";
+            KPPlayerConfig config = new KPPlayerConfig(DOMAIN, "31268502", "1782391").setEntryId("0_e6j0h4bf");
+            config.addConfig("ks","djJ8MTc4MjM5MXwyUpXC0UgkttSksSGBCtmyC2DMl74qL0_MLm8jaauZrBR3ppZ0DuweEmzCpInUKdOIJTM_Qsw5zuVu9GrEZfVc-NCbSFLPtwAxJov9FjZmh8xap9AJgsV7CvNnEuuqXaM=");*/
+            KPPlayerConfig config = new KPPlayerConfig("https://cdnapisec.kaltura.com", "31268502", "1782391").setEntryId("0_e6j0h4bf");
+            config.addConfig("ks","djJ8MTc4MjM5MXwX007Kws_BI72abmNu_jB72Vf_hZkADQDkfuxys2feDxVIMFlONvjWN3Gy5SpZ-UGIZKhd16f58ORKO24lFK57A9MjMcQmUgjGrUfmONFzVlm3UHp2jBdQZVpq3NASr55nrZZKPSGHoz6iQwnxrskQJnPgcYNABBgoSNNbQXteow==");
             config.setAutoPlay(true);
             mPlayPauseButton.setText("Pause");
 
@@ -98,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             config.addConfig("sourceSelector.displayMode", "bitrate");
             config.addConfig("audioSelector.plugin", "true");
             config.addConfig("closedCaptions.showEmbeddedCaptions", "true");
-
 
             mPlayer.initWithConfiguration(config);
 

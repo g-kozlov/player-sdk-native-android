@@ -30,6 +30,7 @@ import com.kaltura.playersdk.utils.LogUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 
@@ -83,7 +84,16 @@ public class KControlsView extends WebView implements View.OnTouchListener {
         getSettings().setAllowFileAccess(true);
         getSettings().setDomStorageEnabled(true);
         getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        getSettings().setAppCacheEnabled(false);
+        getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        //getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        //getSettings().setAppCacheEnabled(true);
+        //getSettings().setJavaScriptEnabled(true);
+        //getSettings().setAppCachePath("");
+        //getSettings().setAppCacheMaxSize(10*1024*1024);
+        getSettings().setLoadWithOverviewMode(true);
+        getSettings().setUseWideViewPort(true);
+        setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        setScrollbarFadingEnabled(false);
         this.addJavascriptInterface(this, "android");
         this.setWebViewClient(new CustomWebViewClient());
         //this.setWebChromeClient(new WebChromeClient());
