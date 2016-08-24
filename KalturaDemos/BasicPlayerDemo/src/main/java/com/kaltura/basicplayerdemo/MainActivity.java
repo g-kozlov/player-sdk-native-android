@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             KPPlayerConfig config = new KPPlayerConfig(DOMAIN, "31268502", "1782391").setEntryId("0_e6j0h4bf");
             config.addConfig("ks","djJ8MTc4MjM5MXwyUpXC0UgkttSksSGBCtmyC2DMl74qL0_MLm8jaauZrBR3ppZ0DuweEmzCpInUKdOIJTM_Qsw5zuVu9GrEZfVc-NCbSFLPtwAxJov9FjZmh8xap9AJgsV7CvNnEuuqXaM=");*/
             KPPlayerConfig config = new KPPlayerConfig("https://cdnapisec.kaltura.com", "31268502", "1782391").setEntryId("0_e6j0h4bf");
-            config.addConfig("ks","djJ8MTc4MjM5MXwX007Kws_BI72abmNu_jB72Vf_hZkADQDkfuxys2feDxVIMFlONvjWN3Gy5SpZ-UGIZKhd16f58ORKO24lFK57A9MjMcQmUgjGrUfmONFzVlm3UHp2jBdQZVpq3NASr55nrZZKPSGHoz6iQwnxrskQJnPgcYNABBgoSNNbQXteow==");
+            config.addConfig("ks","djJ8MTc4MjM5MXy0XZyyyF4cvoPMINglLyv5WugAQZtKroMYrHFPV6UuunIkMrbOP-WBb29aCYXfbndgD7DtqscG7znMIG-zDbA28C5mrKGS_XPTl1YuZtHT-1YlCZlR8EusBBMSdeHB4vJA7nsngyGPKVPUbukE_Aep7jD3dtAo5D4jSFVkZHoVUQ==");
             config.setAutoPlay(true);
             mPlayPauseButton.setText("Pause");
 
